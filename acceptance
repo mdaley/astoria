@@ -40,10 +40,11 @@ handle_force_exit () {
 trap handle_force_exit INT
 
 run-datastore beenies localhost 8123
-echo "PIDDDDDD ${DATASTORE_PID}"
+echo "Datastore emulator running under PID ${DATASTORE_PID}"
 
 eval $(gcloud beta emulators datastore env-init)
-echo "HOST = $DATASTORE_EMULATOR_HOST"
-sleep 20
+echo "Datastore emulator hosted at $DATASTORE_EMULATOR_HOST"
+
+lein test
 
 kill_datastore
