@@ -1,0 +1,49 @@
+#!/bin/bash
+
+run-datastore () {
+  PROJECT=$1
+  HOST=$2
+  PORT=$3
+  gcloud beta emulators datastore start --project ${PROJECT} --host-port ${HOST}:${PORT} --no-store-on-disk &
+  DATASTORE_PID=$!
+}
+
+function list_children {
+    [[ $2 == --add ]] || CHILDREN=()
+    local ADD=() __
+    IFS=$'\n' read -ra ADD -d '' < <(exec pgrep -P "$1")
+    CHILDREN+=("${ADD[@]}")
+
+    for __ in "${ADD[@]}"; do
+        list_children "$__" --add
+    done
+}
+
+# Note: minus in front of process id -> kill complete process tree!
+kill_datastore() {
+  if [ $DATASTORE_PID ]; then 
+    echo "Killing data store emulator ${DATASTORE_PID}";
+    list_children $DATASTORE_PID;
+    kill -9 $DATASTORE_PID;
+    for CHILD in "${CHILDREN[@]}"; do
+      echo "Killing child $CHILD"; kill -9 $CHILD;
+    done;
+  fi
+}
+
+handle_force_exit () {
+    echo -e "\nHandling interrupt"
+    kill_datastore
+    exit 1
+}
+
+trap handle_force_exit INT
+
+run-datastore beenies localhost 8123
+echo "PIDDDDDD ${DATASTORE_PID}"
+
+eval $(gcloud beta emulators datastore env-init)
+echo "HOST = $DATASTORE_EMULATOR_HOST"
+sleep 20
+
+kill_datastore
