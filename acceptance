@@ -19,7 +19,6 @@ function list_children {
     done
 }
 
-# Note: minus in front of process id -> kill complete process tree!
 kill_datastore() {
   if [ $DATASTORE_PID ]; then 
     echo "Killing data store emulator ${DATASTORE_PID}";

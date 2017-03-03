@@ -38,9 +38,7 @@
       (set-host host)
       (set-project project-id)
       .build
-      .getService)
-  ;(.getService (.build (set-project (set-host (DatastoreOptions/newBuilder) host) project-id)))
-  )
+      .getService))
 
 (defn- create-kind
   [datastore kind]
@@ -61,10 +59,6 @@
 (defn- retrieve-entity
   [datastore key]
   (.get datastore key))
-
-(deftest a-test
-  (testing "I pass. Yippee!"
-    (is (= 1 1))))
 
 (deftest store-something
   (testing "I'm going to store something"
