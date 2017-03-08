@@ -8,3 +8,4 @@ lein deploy clojars
 lein change version leiningen.release/bump-version
 lein vcs commit
 lein vcs push
+git push --tags
