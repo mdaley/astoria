@@ -1,4 +1,4 @@
-(defproject astoria "0.1.1"
+(defproject astoria "0.1.2-SNAPSHOT"
   :description "Google Cloud data store client"
   :url "https://github.com/mdaley/astoria"
   :license {:name "Eclipse Public License"
