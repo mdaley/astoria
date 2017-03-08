@@ -44,6 +44,6 @@ echo "Datastore emulator running under PID ${DATASTORE_PID}"
 eval $(gcloud beta emulators datastore env-init)
 echo "Datastore emulator hosted at $DATASTORE_EMULATOR_HOST"
 
-lein test
+lein test :acceptance
 
 kill_datastore

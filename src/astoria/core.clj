@@ -40,12 +40,13 @@
                                                   :args [kind]}))
 
 (defn get-datastore
-  [{:keys [host project-id]}]
-  (cond-> (DatastoreOptions/newBuilder)
-          host (set-host host)
-          project-id (set-project project-id)
-          true .build
-          true .getService))
+  [{:keys [host project-id namespace]}]
+  (-> (cond-> (DatastoreOptions/newBuilder)
+        host (set-host host)
+        project-id (set-project project-id)
+        namespace (.setNamespace namespace))
+      .build
+      .getService))
 
 (defn create-kind
   [datastore kind]
