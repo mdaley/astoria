@@ -3,11 +3,17 @@
             ServiceOptions$Builder]
            [com.google.cloud.datastore
             BaseKey$Builder
+            BooleanValue
             DatastoreOptions
             DatastoreOptions$Builder
             Datastore
+            DoubleValue
             Entity
-            KeyFactory]))
+            KeyFactory
+            LongValue
+            NullValue
+            StringValue
+            Value]))
 
 (defn- invoke-public-method-of-non-public-base-class
   [{:keys [instance base-class method-name args-def args]}]
@@ -40,7 +46,7 @@
                                                   :args [kind]}))
 
 (defn get-datastore
-  [& {:keys [host project-id namespace]}]
+  [& [{:keys [host project-id namespace]}]]
   (-> (cond-> (DatastoreOptions/newBuilder)
         host (set-host host)
         project-id (set-project project-id)
@@ -56,10 +62,6 @@
   [kind name]
   (.newKey kind name))
 
-(defn create-entity
-  [key text]
-  (.build (.set (Entity/newBuilder key) "text" text)))
-
 (defn store-entity
   [datastore entity]
   (.put datastore entity))
@@ -67,3 +69,29 @@
 (defn retrieve-entity
   [datastore key]
   (.get datastore key))
+
+(defprotocol Storable
+  "Extensible protocol for mapping Clojure values to values that can be placed in entities."
+  (store-value ^Value [this]))
+
+(extend-protocol Storable
+  Value (store-value [x] x)
+  nil (store-value [x] (NullValue.))
+  Boolean (store-value [x] (BooleanValue. x))
+  Long (store-value [x] (LongValue. x))
+  Double (store-value [x] (DoubleValue. x))
+  Integer (store-value [x] (LongValue. x))
+  Float (store-value [x] (DoubleValue. x))
+  String (store-value [x] (StringValue. x)))
+
+(defn- set-entity-values
+  [entity-builder name-value-map]
+  (doall (map #(.set entity-builder (name (first %1)) (store-value (second %1))) (seq name-value-map)))
+  entity-builder)
+
+(defn create-entity
+  [key name-value-map]
+  (-> (Entity/newBuilder)
+      (.setKey key)
+      (set-entity-values name-value-map)
+      .build))
